@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    depends_on:
+      - neo4j
+
+  neo4j:
+    image: neo4j:5
+    container_name: neo4j_ndtp
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    ports:
+      - "7474:7474"   # browser
+      - "7687:7687"   # bolt
