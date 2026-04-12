@@ -55,35 +55,50 @@ def get_motor():
 @app.post("/graph/load-json")
 def load_json_graph():
 
+    import os
+    import json
+
     file_path = os.path.join("data", "final_naval.json")
 
     if not os.path.exists(file_path):
-        return {"error": "JSON file not found in backend/data/"}
+        return {"error": f"JSON file not found at {file_path}"}
 
     with open(file_path) as f:
         data = json.load(f)
 
     created_nodes = 0
 
+    def clean_properties(props):
+        clean = {}
+        for k, v in props.items():
+            if isinstance(v, (str, int, float, bool)):
+                clean[k] = v
+            else:
+                # 🔥 convert nested dict/list → string
+                clean[k] = json.dumps(v)
+        return clean
+
     with driver.session() as session:
 
-        # Loop through node types
+        # 🔹 LOAD NODES
         for node_type, content in data.get("node_types", {}).items():
 
             for node in content.get("nodes", []):
+                node_id = node.get("node_id")
                 props = node.get("properties", {})
-                props["node_id"] = node.get("node_id")
 
-                # MERGE avoids duplicates
+                clean_props = clean_properties(props)
+                clean_props["node_id"] = node_id
+
                 query = f"""
                 MERGE (n:{node_type} {{node_id: $node_id}})
                 SET n += $props
                 """
 
-                session.run(query, node_id=props["node_id"], props=props)
+                session.run(query, node_id=node_id, props=clean_props)
                 created_nodes += 1
 
     return {
-        "status": "json graph loaded",
+        "status": "nodes loaded successfully",
         "nodes_processed": created_nodes
     }
