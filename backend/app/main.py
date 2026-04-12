@@ -69,7 +69,7 @@ def load_json_graph():
     created_nodes = 0
     created_edges = 0
 
-    # 🔹 CLEAN PROPERTIES (handles nested JSON safely)
+    # 🔹 CLEAN PROPERTIES
     def clean_properties(props):
         clean = {}
         for k, v in props.items():
@@ -78,13 +78,13 @@ def load_json_graph():
             elif v is None:
                 clean[k] = None
             else:
-                clean[k] = json.dumps(v)  # 🔥 key fix
+                clean[k] = json.dumps(v)
         return clean
 
     with driver.session() as session:
 
         # =========================
-        # 🔹 LOAD NODES (NO DUPES)
+        # 🔹 LOAD NODES
         # =========================
         for node_type, content in data.get("node_types", {}).items():
 
@@ -104,7 +104,7 @@ def load_json_graph():
                 created_nodes += 1
 
         # =========================
-        # 🔹 LOAD RELATIONSHIPS (NO DUPES)
+        # 🔹 LOAD RELATIONSHIPS
         # =========================
         for rel_type, content in data.get("relationship_types", {}).items():
 
@@ -119,37 +119,19 @@ def load_json_graph():
                 props = edge.get("properties", {})
                 clean_props = clean_properties(props)
 
-                # 🔥 KEY: prevent duplicate edges using event_id if present
-                event_id = props.get("event_id")
+                query = f"""
+                MATCH (a {{node_id: $from_id}})
+                MATCH (b {{node_id: $to_id}})
+                MERGE (a)-[r:{rel_type}]->(b)
+                SET r += $props
+                """
 
-                if event_id:
-                    query = f"""
-                    MATCH (a {{node_id: $from_id}})
-                    MATCH (b {{node_id: $to_id}})
-                    MERGE (a)-[r:{rel_type} {{event_id: $event_id}}]->(b)
-                    SET r += $props
-                    """
-                    session.run(
-                        query,
-                        from_id=from_id,
-                        to_id=to_id,
-                        event_id=event_id,
-                        props=clean_props
-                    )
-                else:
-                    # fallback if no event_id
-                    query = f"""
-                    MATCH (a {{node_id: $from_id}})
-                    MATCH (b {{node_id: $to_id}})
-                    MERGE (a)-[r:{rel_type}]->(b)
-                    SET r += $props
-                    """
-                    session.run(
-                        query,
-                        from_id=from_id,
-                        to_id=to_id,
-                        props=clean_props
-                    )
+                session.run(
+                    query,
+                    from_id=from_id,
+                    to_id=to_id,
+                    props=clean_props
+                )
 
                 created_edges += 1
 
