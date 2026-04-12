@@ -67,20 +67,25 @@ def load_json_graph():
         data = json.load(f)
 
     created_nodes = 0
+    created_edges = 0
 
+    # 🔹 CLEAN PROPERTIES (handles nested JSON safely)
     def clean_properties(props):
         clean = {}
         for k, v in props.items():
             if isinstance(v, (str, int, float, bool)):
                 clean[k] = v
+            elif v is None:
+                clean[k] = None
             else:
-                # 🔥 convert nested dict/list → string
-                clean[k] = json.dumps(v)
+                clean[k] = json.dumps(v)  # 🔥 key fix
         return clean
 
     with driver.session() as session:
 
-        # 🔹 LOAD NODES
+        # =========================
+        # 🔹 LOAD NODES (NO DUPES)
+        # =========================
         for node_type, content in data.get("node_types", {}).items():
 
             for node in content.get("nodes", []):
@@ -98,7 +103,58 @@ def load_json_graph():
                 session.run(query, node_id=node_id, props=clean_props)
                 created_nodes += 1
 
+        # =========================
+        # 🔹 LOAD RELATIONSHIPS (NO DUPES)
+        # =========================
+        for rel_type, content in data.get("relationship_types", {}).items():
+
+            for edge in content.get("edges", []):
+
+                from_id = edge.get("from")
+                to_id = edge.get("to")
+
+                if not from_id or not to_id:
+                    continue
+
+                props = edge.get("properties", {})
+                clean_props = clean_properties(props)
+
+                # 🔥 KEY: prevent duplicate edges using event_id if present
+                event_id = props.get("event_id")
+
+                if event_id:
+                    query = f"""
+                    MATCH (a {{node_id: $from_id}})
+                    MATCH (b {{node_id: $to_id}})
+                    MERGE (a)-[r:{rel_type} {{event_id: $event_id}}]->(b)
+                    SET r += $props
+                    """
+                    session.run(
+                        query,
+                        from_id=from_id,
+                        to_id=to_id,
+                        event_id=event_id,
+                        props=clean_props
+                    )
+                else:
+                    # fallback if no event_id
+                    query = f"""
+                    MATCH (a {{node_id: $from_id}})
+                    MATCH (b {{node_id: $to_id}})
+                    MERGE (a)-[r:{rel_type}]->(b)
+                    SET r += $props
+                    """
+                    session.run(
+                        query,
+                        from_id=from_id,
+                        to_id=to_id,
+                        props=clean_props
+                    )
+
+                created_edges += 1
+
     return {
-        "status": "nodes loaded successfully",
-        "nodes_processed": created_nodes
+        "status": "graph fully loaded (no duplicates)",
+        "nodes_processed": created_nodes,
+        "edges_processed": created_edges
     }
