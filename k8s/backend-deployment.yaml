@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ndtp-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: ndtp-backend
+
+  template:
+    metadata:
+      labels:
+        app: ndtp-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: riatalsania/ndtp-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000

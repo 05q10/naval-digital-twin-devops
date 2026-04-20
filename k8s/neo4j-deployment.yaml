@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: neo4j
+
+  template:
+    metadata:
+      labels:
+        app: neo4j
+
+    spec:
+      containers:
+        - name: neo4j
+          image: neo4j:5
+          ports:
+            - containerPort: 7474
+            - containerPort: 7687
+          env:
+            - name: NEO4J_AUTH
+              value: neo4j/Ria05@10
+            - name: NEO4J_server_config_strict__validation_enabled
+              value: "false"

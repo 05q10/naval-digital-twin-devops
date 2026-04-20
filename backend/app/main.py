@@ -22,8 +22,13 @@ def health():
 def test_graph():
     with driver.session() as session:
         result = session.run("RETURN 'Neo4j Connected' AS message")
-        return [record["message"] for record in result]
+        messages = [record["message"] for record in result]
 
+        return {
+            "status": "🚀 CI/CD LIVE",
+            "data": messages,
+            "version": "v2"
+        }
 
 # ------------------ OLD DEMO GRAPH ------------------
 
