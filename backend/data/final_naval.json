@@ -142,7 +142,7 @@
             "location": "Visakhapatnam, India",
             "status": "ACTIVE",
             "dockyard_type": "Naval Maintenance Dockyard",
-            "maintenance_capacity_units": 820,
+            "maintenance_capacity_units": 800,
             "max_ships_supported": 4,
             "specialization": "Power Generation and Auxiliary Systems",
             "dockyard_notes": "Supports generator systems, auxiliary repairs, and modernization programs",
