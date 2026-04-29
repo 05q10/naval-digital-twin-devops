@@ -57,7 +57,7 @@ def get_motor():
 
 # ------------------ NEW: LOAD JSON GRAPH ------------------
 
-@app.post("/graph/load-json")
+@app.get("/graph/load-json")
 def load_json_graph():
 
     import os
