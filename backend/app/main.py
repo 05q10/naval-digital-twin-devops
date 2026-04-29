@@ -127,6 +127,7 @@ def load_json_graph():
                 clean_props["node_id"] = node_id
 
                 print("CREATING NODE:", node_id)
+                print(">>> NODE:", node.get("node_id"))
 
                 session.execute_write(
                     create_node,
@@ -172,4 +173,111 @@ def load_json_graph():
         "status": "graph fully loaded (no duplicates)",
         "nodes_processed": created_nodes,
         "edges_processed": created_edges
+    }
+@app.get("/graph/reset-and-load")
+def reset_and_load():
+
+    import os
+    import json
+    from app.db.neo4j import driver
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(BASE_DIR, "..", "data", "final_naval.json")
+
+    if not os.path.exists(file_path):
+        return {"error": f"JSON file not found at {file_path}"}
+
+    with open(file_path) as f:
+        data = json.load(f)
+
+    created_nodes = 0
+    created_edges = 0
+
+    # 🔹 CLEAN PROPERTIES
+    def clean_properties(props):
+        clean = {}
+        for k, v in props.items():
+            if isinstance(v, (str, int, float, bool)):
+                clean[k] = v
+            elif v is None:
+                clean[k] = None
+            else:
+                clean[k] = json.dumps(v)
+        return clean
+
+    def create_node(tx, node_type, node_id, props):
+        query = f"""
+        MERGE (n:{node_type} {{node_id: $node_id}})
+        SET n = $props
+        """
+        tx.run(query, node_id=node_id, props=props)
+
+    def create_relationship(tx, rel_type, from_id, to_id, props):
+        query = f"""
+        MATCH (a {{node_id: $from_id}})
+        MATCH (b {{node_id: $to_id}})
+        MERGE (a)-[r:{rel_type}]->(b)
+        SET r = $props
+        """
+        tx.run(query, from_id=from_id, to_id=to_id, props=props)
+
+    with driver.session() as session:
+
+        # 💥 STEP 1: CLEAR GRAPH
+        session.run("MATCH (n) DETACH DELETE n")
+
+        print("===== GRAPH CLEARED =====")
+
+        # 💥 STEP 2: LOAD NODES
+        for node_type, content in data.get("node_types", {}).items():
+            for node in content.get("nodes", []):
+
+                node_id = node.get("node_id")
+                if not node_id:
+                    continue
+
+                props = node.get("properties", {})
+                clean_props = clean_properties(props)
+                clean_props["node_id"] = node_id
+
+                print("CREATING NODE:", node_id)
+
+                session.execute_write(
+                    create_node,
+                    node_type,
+                    node_id,
+                    clean_props
+                )
+
+                created_nodes += 1
+
+        # 💥 STEP 3: LOAD RELATIONSHIPS
+        for rel_type, content in data.get("relationship_types", {}).items():
+            for edge in content.get("edges", []):
+
+                from_id = edge.get("from")
+                to_id = edge.get("to")
+
+                if not from_id or not to_id:
+                    continue
+
+                props = edge.get("properties", {})
+                clean_props = clean_properties(props)
+
+                print(f"CREATING EDGE: {from_id} -> {to_id}")
+
+                session.execute_write(
+                    create_relationship,
+                    rel_type,
+                    from_id,
+                    to_id,
+                    clean_props
+                )
+
+                created_edges += 1
+
+    return {
+        "status": "graph reset + loaded from JSON",
+        "nodes_loaded": created_nodes,
+        "edges_loaded": created_edges
     }
