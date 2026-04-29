@@ -128,7 +128,7 @@ def load_json_graph():
 
                 print("CREATING NODE:", node_id)
 
-                session.write_transaction(
+                session.execute_write(
                     create_node,
                     node_type,
                     node_id,
@@ -158,7 +158,7 @@ def load_json_graph():
 
                 print(f"CREATING EDGE: {from_id} -> {to_id}")
 
-                session.write_transaction(
+                session.execute_write(
                     create_relationship,
                     rel_type,
                     from_id,
