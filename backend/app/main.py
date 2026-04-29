@@ -185,35 +185,24 @@ def reset_and_load():
     file_path = os.path.join(BASE_DIR, "..", "data", "final_naval.json")
 
     if not os.path.exists(file_path):
-        return {"error": f"JSON file not found at {file_path}"}
+        return {"error": "JSON not found"}
 
     with open(file_path) as f:
         data = json.load(f)
 
-    created_nodes = 0
-    created_edges = 0
-
-    # 🔹 CLEAN PROPERTIES
     def clean_properties(props):
         clean = {}
         for k, v in props.items():
-            if isinstance(v, (str, int, float, bool)):
+            if isinstance(v, (str, int, float, bool)) or v is None:
                 clean[k] = v
-            elif v is None:
-                clean[k] = None
             else:
                 clean[k] = json.dumps(v)
         return clean
 
-    # 🔥 FULL LOAD IN ONE TRANSACTION
     def full_load(tx):
-        nonlocal created_nodes, created_edges
 
-        # 🔥 STEP 1: CLEAR GRAPH
         tx.run("MATCH (n) DETACH DELETE n")
-        print("===== GRAPH CLEARED =====")
 
-        # 🔹 STEP 2: LOAD NODES
         for node_type, content in data.get("node_types", {}).items():
             for node in content.get("nodes", []):
 
@@ -221,21 +210,16 @@ def reset_and_load():
                 if not node_id:
                     continue
 
-                props = node.get("properties", {})
-                clean_props = clean_properties(props)
-                clean_props["node_id"] = node_id
-
-                print("CREATING NODE:", node_id)
+                props = clean_properties(node.get("properties", {}))
+                props["node_id"] = node_id
 
                 query = f"""
                 MERGE (n:{node_type} {{node_id: $node_id}})
                 SET n = $props
                 """
 
-                tx.run(query, node_id=node_id, props=clean_props)
-                created_nodes += 1
+                tx.run(query, node_id=node_id, props=props)
 
-        # 🔹 STEP 3: LOAD RELATIONSHIPS
         for rel_type, content in data.get("relationship_types", {}).items():
             for edge in content.get("edges", []):
 
@@ -245,10 +229,7 @@ def reset_and_load():
                 if not from_id or not to_id:
                     continue
 
-                props = edge.get("properties", {})
-                clean_props = clean_properties(props)
-
-                print(f"CREATING EDGE: {from_id} -> {to_id}")
+                props = clean_properties(edge.get("properties", {}))
 
                 query = f"""
                 MATCH (a {{node_id: $from_id}})
@@ -257,15 +238,9 @@ def reset_and_load():
                 SET r = $props
                 """
 
-                tx.run(query, from_id=from_id, to_id=to_id, props=clean_props)
-                created_edges += 1
+                tx.run(query, from_id=from_id, to_id=to_id, props=props)
 
-    # 🔥 EXECUTE SINGLE COMMIT
     with driver.session() as session:
         session.execute_write(full_load)
 
-    return {
-        "status": "graph reset + loaded (single transaction)",
-        "nodes_loaded": created_nodes,
-        "edges_loaded": created_edges
-    }
+    return {"status": "SUCCESS"}
