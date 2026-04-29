@@ -129,7 +129,7 @@ def load_json_graph():
                 MATCH (a {{node_id: $from_id}})
                 MATCH (b {{node_id: $to_id}})
                 MERGE (a)-[r:{rel_type}]->(b)
-                SET r += $props
+                SET r = $props
                 """
 
                 session.run(
