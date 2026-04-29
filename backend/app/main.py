@@ -192,6 +192,7 @@ def reset_and_load():
 
     created_nodes = 0
     created_edges = 0
+    failed_nodes = 0
 
     # 🔹 CLEAN PROPERTIES
     def clean_properties(props):
@@ -205,6 +206,7 @@ def reset_and_load():
                 clean[k] = json.dumps(v)
         return clean
 
+    # 🔹 NODE CREATION
     def create_node(tx, node_type, node_id, props):
         query = f"""
         MERGE (n:{node_type} {{node_id: $node_id}})
@@ -212,6 +214,7 @@ def reset_and_load():
         """
         tx.run(query, node_id=node_id, props=props)
 
+    # 🔹 RELATIONSHIP CREATION
     def create_relationship(tx, rel_type, from_id, to_id, props):
         query = f"""
         MATCH (a {{node_id: $from_id}})
@@ -225,14 +228,16 @@ def reset_and_load():
 
         # 💥 STEP 1: CLEAR GRAPH
         session.run("MATCH (n) DETACH DELETE n")
-
         print("===== GRAPH CLEARED =====")
 
-        # 💥 STEP 2: LOAD NODES
+        # 💥 STEP 2: LOAD NODES (SAFE LOOP)
         for node_type, content in data.get("node_types", {}).items():
-            for node in content.get("nodes", []):
 
+            nodes = content.get("nodes", [])
+
+            for node in nodes:
                 node_id = node.get("node_id")
+
                 if not node_id:
                     continue
 
@@ -240,21 +245,29 @@ def reset_and_load():
                 clean_props = clean_properties(props)
                 clean_props["node_id"] = node_id
 
-                print("CREATING NODE:", node_id)
+                try:
+                    print("CREATING NODE:", node_id)
 
-                session.execute_write(
-                    create_node,
-                    node_type,
-                    node_id,
-                    clean_props
-                )
+                    session.execute_write(
+                        create_node,
+                        node_type,
+                        node_id,
+                        clean_props
+                    )
 
-                created_nodes += 1
+                    created_nodes += 1
 
-        # 💥 STEP 3: LOAD RELATIONSHIPS
+                except Exception as e:
+                    print(f"❌ ERROR ON NODE {node_id}: {e}")
+                    failed_nodes += 1
+                    continue
+
+        # 💥 STEP 3: LOAD RELATIONSHIPS (SAFE LOOP)
         for rel_type, content in data.get("relationship_types", {}).items():
-            for edge in content.get("edges", []):
 
+            edges = content.get("edges", [])
+
+            for edge in edges:
                 from_id = edge.get("from")
                 to_id = edge.get("to")
 
@@ -264,20 +277,26 @@ def reset_and_load():
                 props = edge.get("properties", {})
                 clean_props = clean_properties(props)
 
-                print(f"CREATING EDGE: {from_id} -> {to_id}")
+                try:
+                    print(f"CREATING EDGE: {from_id} -> {to_id}")
 
-                session.execute_write(
-                    create_relationship,
-                    rel_type,
-                    from_id,
-                    to_id,
-                    clean_props
-                )
+                    session.execute_write(
+                        create_relationship,
+                        rel_type,
+                        from_id,
+                        to_id,
+                        clean_props
+                    )
 
-                created_edges += 1
+                    created_edges += 1
+
+                except Exception as e:
+                    print(f"❌ ERROR ON EDGE {from_id}->{to_id}: {e}")
+                    continue
 
     return {
         "status": "graph reset + loaded from JSON",
         "nodes_loaded": created_nodes,
-        "edges_loaded": created_edges
+        "edges_loaded": created_edges,
+        "failed_nodes": failed_nodes
     }
