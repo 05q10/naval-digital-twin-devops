@@ -26,8 +26,8 @@ def test_graph():
 
         return {
             "status": "🚀 CI/CD LIVE",
-            "data": messages,
-            "version": "v2"
+            "data": [record["message"] for record in result],
+            "version": "v3"
         }
 
 # ------------------ OLD DEMO GRAPH ------------------
