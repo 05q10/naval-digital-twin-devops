@@ -103,7 +103,7 @@ def load_json_graph():
 
                 query = f"""
                 MERGE (n:{node_type} {{node_id: $node_id}})
-                SET n += $props
+                SET n = $props
                 """
 
                 session.run(query, node_id=node_id, props=clean_props)
