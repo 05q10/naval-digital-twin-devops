@@ -244,3 +244,10 @@ def reset_and_load():
         session.execute_write(full_load)
 
     return {"status": "SUCCESS"}
+@app.get("/debug/db")
+def debug_db():
+    from app.db.neo4j import driver
+
+    with driver.session() as session:
+        result = session.run("CALL db.info()")
+        return [dict(r) for r in result]
