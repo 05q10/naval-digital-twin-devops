@@ -62,8 +62,9 @@ def load_json_graph():
 
     import os
     import json
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    file_path = os.path.join("data", "final_naval.json")
+    file_path = os.path.join(BASE_DIR, "..", "data", "final_naval.json")
 
     if not os.path.exists(file_path):
         return {"error": f"JSON file not found at {file_path}"}
