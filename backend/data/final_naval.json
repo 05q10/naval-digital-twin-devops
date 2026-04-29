@@ -97,6 +97,21 @@
             "strategic_role": "Primary eastern seaboard defense and surveillance hub",
             "operational_notes": "Supports submarine operations and long-range deployments"
           }
+        },
+        {
+          "node_id": "BASE_B5",
+          "type": "Base",
+          "properties": {
+            "base_id": "B5",
+            "base_name": "Southern Naval Command Base",
+            "location": "Chennai, India",
+            "status": "ACTIVE",
+            "base_type": "Naval Command Base",
+            "max_ships_supported": 14,
+            "fleet_supported": "Western Fleet",
+            "strategic_role": "Primary southern seaboard defense and fleet operations hub",
+            "operational_notes": "Handles high-tempo deployments and maintenance cycles"
+          }
         }
       ]
     },
