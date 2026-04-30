@@ -223,6 +223,21 @@
           }
         },
         {
+          "node_id": "COMBATGROUP_CGDemo",
+          "type": "CombatGroup",
+          "properties": {
+            "group_id": "CGDemo",
+            "group_name": "Demo Combat Group",
+            "group_type": "demo Strike Group",
+            "formation_date": "2022-09-12",
+            "commander": "Admiral R. Sharma",
+            "status": "DEPLOYED",
+            "operational_region": "Command",
+            "formation_strategy": "Carrier-led offensive formation with multi-layered air defense",
+            "deployment_rules": "Deployed for high-priority maritime strike missions"
+          }
+        },
+        {
           "node_id": "COMBATGROUP_CG2",
           "type": "CombatGroup",
           "properties": {
