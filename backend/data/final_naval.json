@@ -238,7 +238,7 @@
           }
         },
         {
-          "node_id": "COMBATGROUP_CGDemo2",
+          "node_id": "COMBATGROUP_CGDemo2ree",
           "type": "CombatGroup",
           "properties": {
             "group_id": "CGDemo2",
