@@ -223,7 +223,7 @@
           }
         },
         {
-          "node_id": "COMBATGROUP_CGDemo",
+          "node_id": "COMBATGROUP_CGDemos",
           "type": "CombatGroup",
           "properties": {
             "group_id": "CGDemo",
