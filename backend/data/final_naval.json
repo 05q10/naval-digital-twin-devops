@@ -202,6 +202,26 @@
             "assigned_combat_group_id": "CG2",
             "expert_notes": "Minor communication delays observed during initial deployment"
           }
+        },
+         {
+          "node_id": "MISSION_MDemo",
+          "type": "Mission",
+          "properties": {
+            "mission_id": "MDemo",
+            "mission_name": "Mission GFMDemo",
+            "criticality_level": 2,
+            "priority": 2,
+            "threat_level": 2,
+            "status": "COMPLETED",
+            "start_date": "2026-06-11 00:00:00",
+            "end_date": "2026-06-22 00:00:00",
+            "mission_type": "Surveillance and Patrol",
+            "location": "Bay of Bengal, Indian Ocean",
+            "mission_outcome": "SUCCESS",
+            "mission_objectives": "Monitor maritime activity and ensure sea lane security",
+            "assigned_combat_group_id": "CG2",
+            "expert_notes": "Minor communication delays observed during initial deployment"
+          }
         }
       ]
     },
