@@ -112,7 +112,17 @@
             "strategic_role": "Primary southern seaboard defense and fleet operations hub",
             "operational_notes": "Handles high-tempo deployments and maintenance cycles"
           }
-        }
+        },
+        {
+  "node_id": "BASE_B9",
+  "type": "Base",
+  "properties": {
+    "base_id": "B9",
+    "base_name": "Demo Naval Base",
+    "location": "Goa, India",
+    "status": "ACTIVE"
+  }
+}
       ]
     },
     "Dockyard": {
