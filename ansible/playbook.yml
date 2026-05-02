@@ -1,0 +1,24 @@
+- name: Setup NDTP system
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+    - name: Pull backend image
+      docker_container:
+        name: ndtp-backend
+        image: riatalsania/ndtp-backend:latest
+        state: started
+        ports:
+          - "8001:8000"
+
+    - name: Run Neo4j
+      docker_container:
+        name: neo4j_ansible
+        image: neo4j:5
+        state: started
+        ports:
+          - "7474:7474"
+          - "7687:7687"
+        env:
+          NEO4J_AUTH: neo4j/password
