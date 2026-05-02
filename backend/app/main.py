@@ -243,7 +243,7 @@ def reset_and_load():
     with driver.session() as session:
         session.execute_write(full_load)
 
-    return {"status": "SUCCESS, all good perfectt "}
+    return {"status": "SUCCESS, all good perfectt!"}
 @app.get("/debug/db")
 def debug_db():
     from app.db.neo4j import driver
