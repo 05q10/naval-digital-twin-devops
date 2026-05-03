@@ -388,7 +388,7 @@
     "System": {
       "nodes": [
         {
-          "node_id": "SYSTEM_PS001",
+          "node_id": "SYSTEM_PS00",
           "type": "System",
           "properties": {
             "system_id": "PS001",
