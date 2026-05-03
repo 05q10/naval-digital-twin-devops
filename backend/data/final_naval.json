@@ -286,22 +286,8 @@
             "formation_strategy": "Distributed patrol formation with ISR (Intelligence, Surveillance, Reconnaissance) focus",
             "deployment_rules": "Deployed for monitoring sea lanes and regional maritime activity"
           }
-        },
-        {
-          "node_id": "COMBATGROUP_CG4",
-          "type": "CombatGroup",
-          "properties": {
-            "group_id": "CG4",
-            "group_name": "Eastern Surveillance Group",
-            "group_type": "Surveillance Group",
-            "formation_date": "2021-09-20",
-            "commander": "Rear Admiral V. Iyer",
-            "status": "DEPLOYED",
-            "operational_region": "Eastern Naval Command",
-            "formation_strategy": "Distributed patrol formation with ISR (Intelligence, Surveillance, Reconnaissance) focus",
-            "deployment_rules": "Deployed for monitoring sea lanes and regional maritime activity"
-          }
         }
+      
       ]
     },
     "OEM": {
