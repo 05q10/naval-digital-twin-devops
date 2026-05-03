@@ -381,24 +381,6 @@
             ],
             "expert_notes": "Specializes in inertial navigation systems and zonal power distribution"
           }
-        },
-        {
-          "node_id": "OEM_OEM6",
-          "type": "OEM",
-          "properties": {
-            "oem_id": "OEM6",
-            "oem_name": "Ria Test Naval Systems",
-            "location": "Odhisha, India",
-            "status": "ACTIVE",
-            "manufacturer_type": "Power Systems",
-            "contact_email": "support@ria.co.in",
-            "contact_phone": "+91-20-99887766",
-            "certifications": [
-              "ISO 9001",
-              "ISO 14001"
-            ],
-            "expert_notes": "Specializes in zonal power distribution"
-          }
         }
       
       ]
