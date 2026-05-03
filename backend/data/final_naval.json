@@ -381,25 +381,8 @@
             ],
             "expert_notes": "Specializes in inertial navigation systems and zonal power distribution"
           }
-        },
-        {
-          "node_id": "OEM_OEM6",
-          "type": "OEM",
-          "properties": {
-            "oem_id": "OEM6",
-            "oem_name": "HALo Naval Systems",
-            "location": "MP, India",
-            "status": "ACTIVE",
-            "manufacturer_type": "Navigation and Power Systems",
-            "contact_email": "support@halonaval.co.in",
-            "contact_phone": "+91-20-99887766",
-            "certifications": [
-              "ISO 9001",
-              "ISO 14001"
-            ],
-            "expert_notes": "Specializes in  zonal power hey distribution"
-          }
         }
+       
       ]
     },
     "System": {
